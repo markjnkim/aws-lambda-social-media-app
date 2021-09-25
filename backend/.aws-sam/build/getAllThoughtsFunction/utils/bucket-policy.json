@@ -1,0 +1,13 @@
+{
+  "Id": "Policy1620661071460",
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Stmt1620660978352",
+      "Action": "s3:*",
+      "Effect": "Allow",
+      "Resource": "arn:aws:s3:::my-thought-client-bucket/*",
+      "Principal": "*"
+    }
+  ]
+}

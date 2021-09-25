@@ -1,0 +1,139 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'thoughts-app
+
+  '
+Globals:
+  Function:
+    Timeout: 3
+Resources:
+  getAllThoughtsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/get-all-thoughts.getAllThoughtsHandler
+      Runtime: nodejs14.x
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: ThoughtsTable
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: ThoughtsTable
+      Events:
+        ThoughtsApi:
+          Type: Api
+          Properties:
+            Path: /api/users
+            Method: GET
+      CodeUri: getAllThoughtsFunction
+  getByUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/get-by-user.getByUserHandler
+      Runtime: nodejs14.x
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: ThoughtsTable
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: ThoughtsTable
+      Events:
+        ThoughtsApi:
+          Type: Api
+          Properties:
+            Path: /api/users/{username}
+            Method: GET
+      CodeUri: getByUserFunction
+  putThoughtFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/put-thought.putThoughtHandler
+      Runtime: nodejs14.x
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: ThoughtsTable
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: ThoughtsTable
+      Events:
+        ThoughtsApi:
+          Type: Api
+          Properties:
+            Path: /api/users
+            Method: POST
+      CodeUri: putThoughtFunction
+  getUrlFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/get-url.getUrlHandler
+      Runtime: nodejs14.x
+      Environment:
+        Variables:
+          UPLOAD_BUCKET:
+            Ref: S3UploadBucket
+      Policies:
+      - S3WritePolicy:
+          BucketName:
+            Ref: S3UploadBucket
+      - Statement:
+        - Effect: Allow
+          Resource:
+            Fn::Sub: arn:aws:s3:::${S3UploadBucket}/
+          Action:
+          - s3:putObjectAcl
+      Events:
+        ThoughtsApi:
+          Type: Api
+          Properties:
+            Path: /api/pre-url
+            Method: GET
+      CodeUri: getUrlFunction
+  ThoughtsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: username
+        AttributeType: S
+      - AttributeName: createdAt
+        AttributeType: N
+      KeySchema:
+      - AttributeName: username
+        KeyType: HASH
+      - AttributeName: createdAt
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+  S3UploadBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      CorsConfiguration:
+        CorsRules:
+        - AllowedHeaders:
+          - '*'
+          AllowedMethods:
+          - GET
+          - PUT
+          - HEAD
+          AllowedOrigins:
+          - '*'
+Outputs:
+  ThoughtsApi:
+    Description: API Gateway endpoint URL for Prod stage for Thoughts application
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/users
+  ThoughtsTable:
+    Description: DynamoDB table
+    Value:
+      Fn::GetAtt:
+      - ThoughtsTable
+      - Arn
+  S3UploadBucketName:
+    Description: S3 bucket for image uploads
+    Value:
+      Ref: S3UploadBucket

@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "thoughts-app-stack"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1gv85d78o7qdc"
+s3_prefix = "thoughts-app-stack"
+region = "us-east-2"
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true

@@ -1,0 +1,16 @@
+{
+  "name": "deep-thoughts",
+  "version": "1.0.0",
+  "description": "A React client and serverless backend using AWS",
+  "scripts": {
+    "start": "cd client && npm start",
+    "sam": "cd backend && sam build && sam deploy",
+    "install": "cd client && npm i",
+    "build": "cd client && npm run build",
+    "deploy": "aws s3 sync ./client/build/ s3://my-thought-client-bucket",
+    "seed": "node ./backend/src/seed/LoadThoughts.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
